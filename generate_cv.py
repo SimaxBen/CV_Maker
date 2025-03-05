@@ -14,7 +14,7 @@ def generate_cv_pdf(view_pdf=True):
     css_path = os.path.join(current_dir, 'css', 'style.css')
     
     # Create output directory
-    pdf_filename = f"cv_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+    pdf_filename = f"cv_{datetime.datetime.now().strftime('%m%d_%H%M')}.pdf"
     cvs_dir = os.path.join(current_dir, 'CVs')
     if not os.path.exists(cvs_dir):
         os.makedirs(cvs_dir)
@@ -29,7 +29,13 @@ def generate_cv_pdf(view_pdf=True):
     # Generate PDF using the CSS content directly
     html = HTML(filename=html_path, base_url=f"file://{current_dir}/")
     css = CSS(string=css_content)
-    html.write_pdf(pdf_path, stylesheets=[css])
+    
+    # Adding specific print settings for WeasyPrint
+    html.write_pdf(
+        pdf_path, 
+        stylesheets=[css],
+        presentational_hints=True  # Respect HTML presentational hints
+    )
     
     print(f"CV PDF generated successfully at: {pdf_path}")
     
@@ -43,6 +49,7 @@ def generate_cv_pdf(view_pdf=True):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate CV PDF")
     parser.add_argument("--no-view", action="store_true", help="Don't open the PDF after generation")
+    parser.add_argument("--margins", type=str, default="0.5cm", help="PDF margins (e.g., '0.5cm', '0cm')")
     args = parser.parse_args()
     
     generate_cv_pdf(not args.no_view)
